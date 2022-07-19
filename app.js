@@ -15,6 +15,10 @@ app.use(morgan("dev"));
 // ROUTE
 app.use("/api", authRouter);
 
+app.get("/", (req, res) => {
+  res.json({ message: "Server is running" });
+});
+
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, err => {
   if (err) {
