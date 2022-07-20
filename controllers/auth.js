@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { hashString, compareString } = require("../utils/auth");
 const { validateName, validateEmail } = require("../utils/validate");
 
-exports.register = async (req, res, next) => {
+exports.register = async (req, res) => {
   const { username, email, password, confirmPassword, question, answer } = req.body;
   // VALIDATION
   if (!username) return res.status(400).json({ message: "Username is required" });
@@ -48,7 +48,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
-exports.login = async (req, res, next) => {
+exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     // CHECK EMAIL & PASSWORD
@@ -73,7 +73,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.handleCurrentUser = async (req, res, next) => {
+exports.handleCurrentUser = async (req, res) => {
   // console.log(req.auth);
   try {
     const user = await User.findById(req.auth._id);
@@ -88,7 +88,7 @@ exports.handleCurrentUser = async (req, res, next) => {
   }
 };
 
-exports.getQuestion = async (req, res, next) => {
+exports.getQuestion = async (req, res) => {
   const { email } = req.body;
   try {
     const existedUser = await User.findOne({ email });
@@ -100,7 +100,7 @@ exports.getQuestion = async (req, res, next) => {
   }
 };
 
-exports.resetPassword = async (req, res, next) => {
+exports.resetPassword = async (req, res) => {
   const { email, answer, newPassword, confirmNewPassword } = req.body;
   const user = await User.findOne({ email });
   if (newPassword.length < 6)

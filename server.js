@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const connectToDatabase = require("./utils/db");
 const authRouter = require("./routes/auth");
+const postRouter = require("./routes/post");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.static(path.join(__dirname + "/public")));
 
 // ROUTE
 app.use("/api", authRouter);
+app.use("/api", postRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Server is running" });
