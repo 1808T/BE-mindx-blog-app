@@ -4,8 +4,8 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      trim: true,
-      required: true
+      required: true,
+      unique: true
     },
     email: {
       type: String,
@@ -27,7 +27,10 @@ const userSchema = new mongoose.Schema(
       required: true
     },
     about: {},
-    photo: String
+    avatar: {
+      url: String,
+      public_id: String
+    }
   },
   { timestamps: true }
 );

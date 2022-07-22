@@ -9,6 +9,9 @@ exports.register = async (req, res) => {
   if (!username) return res.status(400).json({ message: "Username is required" });
   if (!validateName(username))
     return res.status(400).json({ message: "Invalid username. Try again." });
+  const existedUsername = await User.findOne({ username });
+  if (existedUsername)
+    return res.status(400).json({ message: "This username has already been taken" });
 
   if (!email) return res.status(400).json({ message: "Email is required" });
   if (!validateEmail(email)) return res.status(400).json({ message: "Invalid email. Try again." });
@@ -59,12 +62,13 @@ exports.login = async (req, res) => {
       const match = await compareString(password, user.password);
       if (!match) return res.status(400).json({ message: "Wrong password" });
       // CREATE TOKEN
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "7d" });
+      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "30d" });
       user.password = "";
       user.answer = "";
       res.status(200).json({
         token,
-        user
+        user,
+        message: "Successfully login"
       });
     }
   } catch (err) {
@@ -73,18 +77,57 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.handleCurrentUser = async (req, res) => {
+exports.getCurrentUser = async (req, res) => {
   // console.log(req.auth);
   try {
     const user = await User.findById(req.auth._id);
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
     } else {
-      res.json({ ok: true });
+      res.json({ user, ok: true });
     }
   } catch (err) {
     console.log(err);
-    res.status(401).json({ message: "Unauthorized" });
+    res.status(500).json({ message: "Error. Try again!!!" });
+  }
+};
+
+exports.updateCurrentUser = async (req, res) => {
+  const { username, firstName, lastName, dob, address, avatar } = req.body;
+  try {
+    if (!username) {
+      const user = await User.findByIdAndUpdate(
+        { _id: req.auth._id },
+        {
+          $set: {
+            "about.firstName": firstName,
+            "about.lastName": lastName,
+            "about.dob": dob,
+            "about.address": address,
+            avatar: avatar
+          }
+        }
+      );
+      res.status(200).json({ user, message: "Successfully update your info" });
+    } else {
+      const user = await User.findByIdAndUpdate(
+        { _id: req.auth._id },
+        {
+          $set: {
+            username: username,
+            "about.firstName": firstName,
+            "about.lastName": lastName,
+            "about.dob": dob,
+            "about.address": address,
+            avatar: avatar
+          }
+        }
+      );
+      res.status(200).json({ user, message: "Successfully update your info" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again!!!" });
   }
 };
 
