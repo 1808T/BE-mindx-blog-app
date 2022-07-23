@@ -106,7 +106,8 @@ exports.updateCurrentUser = async (req, res) => {
             "about.address": address,
             avatar: avatar
           }
-        }
+        },
+        { returnDocument: "after" }
       );
       res.status(200).json({ user, message: "Successfully update your info" });
     } else {
@@ -121,7 +122,8 @@ exports.updateCurrentUser = async (req, res) => {
             "about.address": address,
             avatar: avatar
           }
-        }
+        },
+        { returnDocument: "after" }
       );
       res.status(200).json({ user, message: "Successfully update your info" });
     }
