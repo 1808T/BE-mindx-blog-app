@@ -1,22 +1,24 @@
 const express = require("express");
-const path = require("path");
+// const path = require("path");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 const connectToDatabase = require("./utils/db");
 const authRouter = require("./routes/auth");
 const postRouter = require("./routes/post");
+const rateRouter = require("./routes/rate");
 
 const app = express();
 
 app.use(bodyParser.json({ extended: true }));
 app.use(cors());
 app.use(morgan("dev"));
-app.use(express.static(path.join(__dirname + "/public")));
+// app.use(express.static(path.join(__dirname + "/public")));
 
 // ROUTE
 app.use("/api", authRouter);
 app.use("/api", postRouter);
+app.use("/api", rateRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Server is running" });

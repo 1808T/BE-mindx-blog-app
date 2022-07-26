@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const cloudinary = require("../utils/cloudinary");
 const { hashString, compareString } = require("../utils/auth");
 const { validateName, validateEmail } = require("../utils/validate");
 
@@ -78,7 +79,6 @@ exports.login = async (req, res) => {
 };
 
 exports.getCurrentUser = async (req, res) => {
-  // console.log(req.auth);
   try {
     const user = await User.findById(req.auth._id);
     if (!user) {
@@ -92,44 +92,89 @@ exports.getCurrentUser = async (req, res) => {
   }
 };
 
-exports.updateCurrentUser = async (req, res) => {
-  const { username, firstName, lastName, dob, address, avatar } = req.body;
+exports.uploadAvatar = async (req, res) => {
+  const avatarPath = req.files.image.path;
   try {
-    if (!username) {
-      const user = await User.findByIdAndUpdate(
-        { _id: req.auth._id },
-        {
-          $set: {
-            "about.firstName": firstName,
-            "about.lastName": lastName,
-            "about.dob": dob,
-            "about.address": address,
-            avatar: avatar
-          }
-        },
-        { returnDocument: "after" }
-      );
-      res.status(200).json({ user, message: "Successfully update your info" });
+    const uploadImage = await cloudinary.uploader.upload(
+      avatarPath,
+      {
+        upload_preset: "images",
+        folder: "user_avatar"
+      },
+      err => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ message: "Error. Try again!!!", err });
+        }
+      }
+    );
+    res.status(200).json({
+      url: uploadImage.secure_url,
+      public_id: uploadImage.public_id,
+      message: "Successfully upload your avatar!!!"
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again!!!", err });
+  }
+};
+
+exports.deleteAvatar = async (req, res) => {
+  const { public_id } = req.body;
+  try {
+    const response = await cloudinary.uploader.destroy(public_id);
+    if (response.result === "ok") {
+      res.status(200).json({ message: "You can choose other avatar now." });
     } else {
-      const user = await User.findByIdAndUpdate(
-        { _id: req.auth._id },
-        {
-          $set: {
-            username: username,
-            "about.firstName": firstName,
-            "about.lastName": lastName,
-            "about.dob": dob,
-            "about.address": address,
-            avatar: avatar
-          }
-        },
-        { returnDocument: "after" }
-      );
-      res.status(200).json({ user, message: "Successfully update your info" });
+      res.status(500).json({ message: "Error. Try again!!!" });
     }
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Error. Try again!!!" });
+    res.status(500).json({ message: "Error. Try again!!!", err });
+  }
+};
+
+exports.updateCurrentUser = async (req, res) => {
+  const { username, firstName, lastName, dob, address, avatar } = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(
+      { _id: req.auth._id },
+      {
+        $set: {
+          username,
+          "about.firstName": firstName,
+          "about.lastName": lastName,
+          "about.dob": dob,
+          "about.address": address,
+          avatar
+        }
+      },
+      { returnDocument: "after" }
+    );
+    res.status(200).json({ user, message: "Successfully update your info" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again!!!", err });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { newPassword, confirmNewPassword } = req.body;
+  if (newPassword.length < 6)
+    return res.status(400).json({ message: "New password should be 6 characters long" });
+  if (newPassword !== confirmNewPassword)
+    return res.status(400).json({ message: "Those passwords didn't match. Try again." });
+  try {
+    const hashedPassword = await hashString(newPassword);
+    const updatedUser = await User.updateOne({ _id: req.auth._id }, { password: hashedPassword });
+    if (updatedUser.acknowledged === true && updatedUser.modifiedCount === 1) {
+      return res.status(200).json({ ok: true, message: "Successfully change your password" });
+    } else {
+      return res.status(500).json({ message: "Error. Try again!!!" });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Error. Try again!!!", err });
   }
 };
 
@@ -157,8 +202,8 @@ exports.resetPassword = async (req, res) => {
 
   try {
     const hashedPassword = await hashString(newPassword);
-    const result = await User.updateOne({ email }, { password: hashedPassword });
-    if (result.acknowledged === true && result.modifiedCount === 1) {
+    const updatedUser = await User.updateOne({ email }, { password: hashedPassword });
+    if (updatedUser.acknowledged === true && updatedUser.modifiedCount === 1) {
       return res.status(200).json({ ok: true });
     } else {
       return res.status(500).json({ message: "Error. Try again!!!" });
