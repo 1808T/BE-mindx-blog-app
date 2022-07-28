@@ -5,6 +5,7 @@ const {
   getCurrentUser,
   uploadAvatar,
   deleteAvatar,
+  replaceAvatar,
   updateCurrentUser,
   changePassword,
   getQuestion,
@@ -25,7 +26,13 @@ authRouter.post(
   formidable({ maxFileSize: 5 * 1024 * 1024 }),
   uploadAvatar
 );
-authRouter.delete("/current-user/avatar", requireLogin, deleteAvatar);
+// authRouter.delete("/current-user/avatar", requireLogin, deleteAvatar);
+authRouter.put(
+  "/current-user/avatar",
+  requireLogin,
+  formidable({ maxFileSize: 5 * 1024 * 1024 }),
+  replaceAvatar
+);
 authRouter.put("/current-user", requireLogin, updateCurrentUser);
 authRouter.put("/current-user/change-password", requireLogin, changePassword);
 

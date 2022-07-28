@@ -59,7 +59,7 @@ exports.deletePostImage = async (req, res) => {
   try {
     const response = await cloudinary.uploader.destroy(public_id);
     if (response.result === "ok") {
-      res.status(200).json({ message: "You can change your image now!" });
+      res.status(200).json({ message: "Clear!!!" });
     } else {
       res.status(500).json({ message: "Error. Try again!!!" });
     }
@@ -73,15 +73,15 @@ exports.replacePostImage = async (req, res) => {
   const { public_id } = req.fields;
   const postImagePath = req.files.image.path;
   try {
-    const replace = await cloudinary.uploader.upload(postImagePath, { public_id }, err => {
+    const replaceImage = await cloudinary.uploader.upload(postImagePath, { public_id }, err => {
       if (err) {
         console.log(err);
         res.status(500).json({ message: "Error. Try again!!!", err });
       }
     });
     res.status(200).json({
-      url: replace.secure_url,
-      public_id: replace.public_id,
+      url: replaceImage.secure_url,
+      public_id: replaceImage.public_id,
       message: "Image successfully uploaded!"
     });
   } catch (err) {
@@ -155,6 +155,17 @@ exports.editPostById = async (req, res) => {
 exports.deletePostById = async (req, res) => {
   try {
     const response = await Post.findByIdAndDelete(req.params._id, { rawResult: true });
+    try {
+      const { public_id } = response.value.image;
+      const delPostImage = await cloudinary.uploader.destroy(public_id);
+      if (delPostImage.result === "ok") {
+        console.log("Image deleted.");
+      } else {
+        console.log("Failed to delete image.");
+      }
+    } catch (err) {
+      console.log(err);
+    }
     if (response.ok === 1) {
       res.status(200).json({ message: "Successfully delete your post" });
     } else {

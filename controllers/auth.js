@@ -119,15 +119,42 @@ exports.uploadAvatar = async (req, res) => {
   }
 };
 
-exports.deleteAvatar = async (req, res) => {
-  const { public_id } = req.body;
+// exports.deleteAvatar = async (req, res) => {
+//   const { public_id } = req.body;
+//   try {
+//     const response = await cloudinary.uploader.destroy(public_id);
+//     if (response.result === "ok") {
+//       res.status(200).json({ message: "You can choose other avatar now." });
+//     } else {
+//       res.status(500).json({ message: "Error. Try again!!!" });
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ message: "Error. Try again!!!", err });
+//   }
+// };
+
+exports.replaceAvatar = async (req, res) => {
+  const { public_id } = req.fields;
+  const avatarPath = req.files.image.path;
   try {
-    const response = await cloudinary.uploader.destroy(public_id);
-    if (response.result === "ok") {
-      res.status(200).json({ message: "You can choose other avatar now." });
-    } else {
-      res.status(500).json({ message: "Error. Try again!!!" });
-    }
+    const replaceImage = await cloudinary.uploader.upload(
+      avatarPath,
+      {
+        public_id
+      },
+      err => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ message: "Error. Try again!!!", err });
+        }
+      }
+    );
+    res.status(200).json({
+      url: replaceImage.secure_url,
+      public_id: replaceImage.public_id,
+      message: "Successfully upload your avatar!!!"
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error. Try again!!!", err });
@@ -159,18 +186,29 @@ exports.updateCurrentUser = async (req, res) => {
 };
 
 exports.changePassword = async (req, res) => {
-  const { newPassword, confirmNewPassword } = req.body;
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+  if (!currentPassword)
+    return res.status(400).json({ message: "Please enter your current password" });
   if (newPassword.length < 6)
     return res.status(400).json({ message: "New password should be 6 characters long" });
   if (newPassword !== confirmNewPassword)
     return res.status(400).json({ message: "Those passwords didn't match. Try again." });
   try {
-    const hashedPassword = await hashString(newPassword);
-    const updatedUser = await User.updateOne({ _id: req.auth._id }, { password: hashedPassword });
-    if (updatedUser.acknowledged === true && updatedUser.modifiedCount === 1) {
-      return res.status(200).json({ ok: true, message: "Successfully change your password" });
-    } else {
-      return res.status(500).json({ message: "Error. Try again!!!" });
+    const { password } = await User.findById(req.auth._id, "password");
+    const comparePassword = await compareString(currentPassword, password);
+    if (!comparePassword)
+      return res.status(400).json({ message: "Your current password do not match. Try again." });
+    try {
+      const hashedPassword = await hashString(newPassword);
+      const updatedUser = await User.updateOne({ _id: req.auth._id }, { password: hashedPassword });
+      if (updatedUser.acknowledged === true && updatedUser.modifiedCount === 1) {
+        return res.status(200).json({ ok: true, message: "Successfully change your password" });
+      } else {
+        return res.status(500).json({ message: "Error. Try again!!!" });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Error. Try again!!!", err });
     }
   } catch (err) {
     console.log(err);
