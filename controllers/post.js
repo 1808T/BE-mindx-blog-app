@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Types;
 const Post = require("../models/post");
 const cloudinary = require("../utils/cloudinary");
 

@@ -1,8 +1,11 @@
 const express = require("express");
 const commentRouter = express.Router();
-const { requireLogin } = require("../middlewares/auth");
-const { rate } = require("../controllers/rate");
+const { requireLogin, canEditDeleteComment } = require("../middlewares/auth");
+const { getComment, postComment, editComment, deleteComment } = require("../controllers/comment");
 
-commentRouter.post("/comment", requireLogin);
+commentRouter.get("/comment/:_id", getComment);
+commentRouter.post("/comment", requireLogin, postComment);
+commentRouter.put("/comment", requireLogin, canEditDeleteComment, editComment);
+commentRouter.delete("/comment", requireLogin, canEditDeleteComment, deleteComment);
 
 module.exports = commentRouter;

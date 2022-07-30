@@ -1,18 +1,21 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
-const rateSchema = new mongoose.Schema({
-  postId: {
-    type: ObjectId,
-    ref: "Post"
+const rateSchema = new mongoose.Schema(
+  {
+    postId: {
+      type: ObjectId,
+      ref: "Post"
+    },
+    ratedBy: {
+      type: ObjectId,
+      ref: "User"
+    },
+    rate: {
+      type: Boolean
+    }
   },
-  ratedBy: {
-    type: ObjectId,
-    ref: "User"
-  },
-  vote: {
-    type: Boolean
-  }
-});
+  { timestamps: true }
+);
 
 const Rate = mongoose.model("Rate", rateSchema);
 

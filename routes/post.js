@@ -9,7 +9,9 @@ const {
   getAllUserPosts,
   getUserPostById,
   editPostById,
-  deletePostById
+  deletePostById,
+  likePost,
+  unlikePost
 } = require("../controllers/post");
 const { requireLogin, canEditDeletePost } = require("../middlewares/auth");
 const formidable = require("express-formidable");

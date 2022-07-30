@@ -7,6 +7,7 @@ const connectToDatabase = require("./utils/db");
 const authRouter = require("./routes/auth");
 const postRouter = require("./routes/post");
 const rateRouter = require("./routes/rate");
+const commentRouter = require("./routes/comment");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(morgan("dev"));
 app.use("/api", authRouter);
 app.use("/api", postRouter);
 app.use("/api", rateRouter);
+app.use("/api", commentRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Server is running" });
