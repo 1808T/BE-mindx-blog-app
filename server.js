@@ -8,6 +8,7 @@ const authRouter = require("./routes/auth");
 const postRouter = require("./routes/post");
 const rateRouter = require("./routes/rate");
 const commentRouter = require("./routes/comment");
+const adminRouter = require("./routes/admin");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/api", authRouter);
 app.use("/api", postRouter);
 app.use("/api", rateRouter);
 app.use("/api", commentRouter);
+app.use("/api/admin", adminRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Server is running" });

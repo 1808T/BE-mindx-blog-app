@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       min: 6,
-      max: 64
+      max: 32
     },
     question: {
       type: String
@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
     avatar: {
       url: String,
       public_id: String
+    },
+    role: {
+      type: String,
+      required: true
     }
   },
   { timestamps: true }

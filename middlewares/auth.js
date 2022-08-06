@@ -1,6 +1,5 @@
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Types;
 const { expressjwt: expressJwt } = require("express-jwt");
+const User = require("../models/user");
 const Post = require("../models/post");
 const Comment = require("../models/comment");
 
@@ -14,6 +13,18 @@ exports.requireLogin = expressJwt(
     res.sendStatus(200);
   }
 );
+
+exports.checkAdmin = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+    const currentUser = await User.findById(req.auth._id, "role");
+    req["role"] = currentUser.role;
+    next();
+  } else {
+    res.sendStatus(401);
+  }
+};
 
 exports.canEditDeletePost = async (req, res, next) => {
   try {

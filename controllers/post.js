@@ -1,27 +1,60 @@
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Types;
 const Post = require("../models/post");
+const Category = require("../models/category");
 const cloudinary = require("../utils/cloudinary");
 
 exports.createPost = async (req, res) => {
-  const { title, description, content, image } = req.body;
+  const { title, description, content, image, category, status = "draft" } = req.body;
 
   if (!title) return res.status(400).json({ message: "Title is required" });
   if (!description) return res.status(400).json({ message: "Description is required" });
   if (!content) return res.status(400).json({ message: "Content is required" });
+  if (!image.url || !image.public_id)
+    return res.status(400).json({ message: "Please attach an image to your post!" });
+  if (!category) return res.status(400).json({ message: "Category is required" });
+  const existedCategory = await Category.findOne({ name: category });
+  if (!existedCategory) {
+    const newCategory = new Category({
+      name: category
+    });
+    await newCategory.save();
+    const post = new Post({
+      title,
+      description,
+      content,
+      image,
+      postedBy: req.auth._id,
+      category: newCategory._id,
+      status
+    });
 
-  const post = new Post({
-    title,
-    description,
-    content,
-    image,
-    postedBy: req.auth._id
-  });
+    try {
+      const newPost = await post.save();
+      res.status(201).json({ newPost, message: "Successfully submit!!!" });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Error. Try again!!!" });
+    }
+  } else {
+    const categoryId = existedCategory._id;
+    const post = new Post({
+      title,
+      description,
+      content,
+      image,
+      postedBy: req.auth._id,
+      category: categoryId,
+      status
+    });
 
-  try {
-    await post.save();
-    return res.status(201).json({ message: "Successfully submit!!!" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error. Try again!!!" });
+    try {
+      const newPost = await post.save();
+      res.status(201).json({ newPost, message: "Successfully submit!!!" });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Error. Try again!!!" });
+    }
   }
 };
 
@@ -71,12 +104,16 @@ exports.replacePostImage = async (req, res) => {
   const { public_id } = req.fields;
   const postImagePath = req.files.image.path;
   try {
-    const replaceImage = await cloudinary.uploader.upload(postImagePath, { public_id }, err => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ message: "Error. Try again!!!", err });
+    const replaceImage = await cloudinary.uploader.upload(
+      postImagePath,
+      { public_id, upload_preset: "images" },
+      err => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ message: "Error. Try again!!!", err });
+        }
       }
-    });
+    );
     res.status(200).json({
       url: replaceImage.secure_url,
       public_id: replaceImage.public_id,
@@ -92,6 +129,7 @@ exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find({})
       .populate("postedBy", "username avatar")
+      .populate("category", "name")
       .sort({ updatedAt: -1 })
       .limit(12);
     res.status(200).json({ posts, message: "Successfully get all posts" });
@@ -103,7 +141,9 @@ exports.getAllPosts = async (req, res) => {
 
 exports.getPostDetailById = async (req, res) => {
   try {
-    const post = await Post.findById(req.params._id).populate("postedBy", "username avatar");
+    const post = await Post.findById(req.params._id)
+      .populate("postedBy", "username avatar")
+      .populate("category", "name");
     res.json({ post, message: "Successfully get post detail" });
   } catch (err) {
     console.log(err);
@@ -167,7 +207,7 @@ exports.deletePostById = async (req, res) => {
     if (response.ok === 1) {
       res.status(200).json({ message: "Successfully delete your post" });
     } else {
-      res.status(500).json({ message: "Error. Try again.", err });
+      res.status(500).json({ message: "Error. Try again." });
     }
   } catch (err) {
     console.log(err);

@@ -3,7 +3,6 @@ const { ObjectId } = mongoose.Types;
 const Rate = require("../models/rate");
 
 exports.rate = async (req, res) => {
-  console.log(req.body);
   const { postId, rate } = req.body;
 
   try {

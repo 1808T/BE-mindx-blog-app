@@ -9,7 +9,8 @@ const {
   updateCurrentUser,
   changePassword,
   getQuestion,
-  resetPassword
+  resetPassword,
+  getUserById
 } = require("../controllers/auth");
 const formidable = require("express-formidable");
 const { requireLogin } = require("../middlewares/auth");
@@ -26,7 +27,7 @@ authRouter.post(
   formidable({ maxFileSize: 5 * 1024 * 1024 }),
   uploadAvatar
 );
-// authRouter.delete("/current-user/avatar", requireLogin, deleteAvatar);
+authRouter.delete("/current-user/avatar", requireLogin, deleteAvatar);
 authRouter.put(
   "/current-user/avatar",
   requireLogin,
@@ -38,5 +39,7 @@ authRouter.put("/current-user/change-password", requireLogin, changePassword);
 
 authRouter.post("/forgot-password", getQuestion);
 authRouter.put("/forgot-password", resetPassword);
+
+authRouter.get("/user/:_id", getUserById);
 
 module.exports = authRouter;

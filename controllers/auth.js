@@ -5,7 +5,7 @@ const { hashString, compareString } = require("../utils/auth");
 const { validateName, validateEmail } = require("../utils/validate");
 
 exports.register = async (req, res) => {
-  const { username, email, password, confirmPassword, question, answer } = req.body;
+  const { username, email, password, confirmPassword, question, answer, role = "user" } = req.body;
   // VALIDATION
   if (!username) return res.status(400).json({ message: "Username is required" });
   if (!validateName(username))
@@ -38,7 +38,8 @@ exports.register = async (req, res) => {
     email,
     password: hashedPassword,
     question,
-    answer: hashedAnswer
+    answer: hashedAnswer,
+    role
   });
 
   try {
@@ -48,7 +49,7 @@ exports.register = async (req, res) => {
     });
   } catch (err) {
     console.log("Failed to register:", err);
-    return res.status(500).json({ message: "Error. Try again!!!" });
+    return res.status(500).json({ message: "Error. Try again." });
   }
 };
 
@@ -74,7 +75,7 @@ exports.login = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "Error. Try again!!!" });
+    return res.status(500).json({ message: "Error. Try again." });
   }
 };
 
@@ -88,7 +89,7 @@ exports.getCurrentUser = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Error. Try again!!!" });
+    res.status(500).json({ message: "Error. Try again." });
   }
 };
 
@@ -104,35 +105,35 @@ exports.uploadAvatar = async (req, res) => {
       err => {
         if (err) {
           console.log(err);
-          res.status(500).json({ message: "Error. Try again!!!", err });
+          res.status(500).json({ message: "Error. Try again.", err });
         }
       }
     );
     res.status(200).json({
       url: uploadImage.secure_url,
       public_id: uploadImage.public_id,
-      message: "Successfully upload your avatar!!!"
+      message: "Successfully upload your avatar."
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Error. Try again!!!", err });
+    res.status(500).json({ message: "Error. Try again.", err });
   }
 };
 
-// exports.deleteAvatar = async (req, res) => {
-//   const { public_id } = req.body;
-//   try {
-//     const response = await cloudinary.uploader.destroy(public_id);
-//     if (response.result === "ok") {
-//       res.status(200).json({ message: "You can choose other avatar now." });
-//     } else {
-//       res.status(500).json({ message: "Error. Try again!!!" });
-//     }
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({ message: "Error. Try again!!!", err });
-//   }
-// };
+exports.deleteAvatar = async (req, res) => {
+  const { public_id } = req.body;
+  try {
+    const response = await cloudinary.uploader.destroy(public_id);
+    if (response.result === "ok") {
+      res.status(200).json({ message: "You can choose other avatar now." });
+    } else {
+      res.status(500).json({ message: "Error. Try again." });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again.", err });
+  }
+};
 
 exports.replaceAvatar = async (req, res) => {
   const { public_id } = req.fields;
@@ -146,33 +147,35 @@ exports.replaceAvatar = async (req, res) => {
       err => {
         if (err) {
           console.log(err);
-          res.status(500).json({ message: "Error. Try again!!!", err });
+          res.status(500).json({ message: "Error. Try again.", err });
         }
       }
     );
     res.status(200).json({
       url: replaceImage.secure_url,
       public_id: replaceImage.public_id,
-      message: "Successfully upload your avatar!!!"
+      message: "Successfully upload your avatar."
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Error. Try again!!!", err });
+    res.status(500).json({ message: "Error. Try again.", err });
   }
 };
 
 exports.updateCurrentUser = async (req, res) => {
-  const { username, firstName, lastName, dob, address, avatar } = req.body;
+  const { username, firstName, lastName, dob, address, phone, avatar, gender } = req.body;
   try {
     const user = await User.findByIdAndUpdate(
       { _id: req.auth._id },
       {
         $set: {
           username,
+          "about.gender": gender,
           "about.firstName": firstName,
           "about.lastName": lastName,
           "about.dob": dob,
           "about.address": address,
+          "about.phone": phone,
           avatar
         }
       },
@@ -181,7 +184,7 @@ exports.updateCurrentUser = async (req, res) => {
     res.status(200).json({ user, message: "Successfully update your info" });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Error. Try again!!!", err });
+    res.status(500).json({ message: "Error. Try again.", err });
   }
 };
 
@@ -204,15 +207,15 @@ exports.changePassword = async (req, res) => {
       if (updatedUser.acknowledged === true && updatedUser.modifiedCount === 1) {
         return res.status(200).json({ ok: true, message: "Successfully change your password" });
       } else {
-        return res.status(500).json({ message: "Error. Try again!!!" });
+        return res.status(500).json({ message: "Error. Try again." });
       }
     } catch (err) {
       console.log(err);
-      return res.status(500).json({ message: "Error. Try again!!!", err });
+      return res.status(500).json({ message: "Error. Try again.", err });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "Error. Try again!!!", err });
+    return res.status(500).json({ message: "Error. Try again.", err });
   }
 };
 
@@ -220,11 +223,11 @@ exports.getQuestion = async (req, res) => {
   const { email } = req.body;
   try {
     const existedUser = await User.findOne({ email });
-    if (!existedUser) return res.status(400).json({ message: "No user found!!!" });
+    if (!existedUser) return res.status(400).json({ message: "No user found." });
     res.status(200).json({ question: existedUser.question });
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "Error. Try again!!!" });
+    return res.status(500).json({ message: "Error. Try again." });
   }
 };
 
@@ -236,7 +239,7 @@ exports.resetPassword = async (req, res) => {
   if (newPassword !== confirmNewPassword)
     return res.status(400).json({ message: "Those passwords didn't match. Try again." });
   const compareAnswer = await compareString(answer, user.answer);
-  if (!compareAnswer) return res.status(400).json({ message: "Wrong answer!!!" });
+  if (!compareAnswer) return res.status(400).json({ message: "Wrong answer." });
 
   try {
     const hashedPassword = await hashString(newPassword);
@@ -244,10 +247,20 @@ exports.resetPassword = async (req, res) => {
     if (updatedUser.acknowledged === true && updatedUser.modifiedCount === 1) {
       return res.status(200).json({ ok: true });
     } else {
-      return res.status(500).json({ message: "Error. Try again!!!" });
+      return res.status(500).json({ message: "Error. Try again." });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "Error. Try again!!!" });
+    return res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params._id);
+    res.status(200).json({ user, message: "Successfully get user." });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
   }
 };

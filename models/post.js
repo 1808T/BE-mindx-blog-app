@@ -22,17 +22,15 @@ const postSchema = new mongoose.Schema(
       url: String,
       public_id: String
     },
-    likes: [{ type: ObjectId, ref: "User" }],
-    comment: [
-      {
-        text: String,
-        created: { type: Date, default: Date.now },
-        postedBy: {
-          type: ObjectId,
-          ref: "User"
-        }
-      }
-    ]
+    status: {
+      type: String,
+      required: true
+    },
+    category: {
+      type: ObjectId,
+      ref: "Category",
+      required: true
+    }
   },
   { timestamps: true }
 );
