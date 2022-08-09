@@ -155,6 +155,7 @@ exports.getAllUserPosts = async (req, res) => {
   try {
     const posts = await Post.find({ postedBy: req.auth._id })
       .populate("postedBy", "_id username")
+      .populate("category", "name")
       .sort({ createdAt: -1 });
     res.status(200).json({ posts, message: "Successfully get all user's posts", ok: true });
   } catch (err) {
@@ -212,5 +213,19 @@ exports.deletePostById = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error. Try again.", err });
+  }
+};
+
+exports.getPostsByCategory = async (req, res) => {
+  const category = req.params._id;
+  try {
+    const posts = await Post.find({ category })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 });
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
   }
 };

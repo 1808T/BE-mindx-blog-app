@@ -9,7 +9,8 @@ const {
   getAllUserPosts,
   getUserPostById,
   editPostById,
-  deletePostById
+  deletePostById,
+  getPostsByCategory
 } = require("../controllers/post");
 const { requireLogin, canEditDeletePost } = require("../middlewares/auth");
 const formidable = require("express-formidable");
@@ -35,8 +36,10 @@ postRouter.get("/all-posts", getAllPosts);
 postRouter.get("/post/:_id", getPostDetailById);
 
 postRouter.get("/your-posts", requireLogin, getAllUserPosts);
-postRouter.get("/user/your-posts/:_id", requireLogin, getUserPostById);
-postRouter.put("/user/edit/:_id", requireLogin, canEditDeletePost, editPostById);
-postRouter.delete("/user/delete/:_id", requireLogin, canEditDeletePost, deletePostById);
+postRouter.get("/your-posts/:_id", requireLogin, getUserPostById);
+postRouter.put("/your-posts/edit/:_id", requireLogin, canEditDeletePost, editPostById);
+postRouter.delete("/your-posts/delete/:_id", requireLogin, canEditDeletePost, deletePostById);
+
+postRouter.get("/category/:_id", getPostsByCategory);
 
 module.exports = postRouter;
