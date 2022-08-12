@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Types;
 const Post = require("../models/post");
+const User = require("../models/user");
 const Category = require("../models/category");
 const cloudinary = require("../utils/cloudinary");
 
@@ -125,9 +126,9 @@ exports.replacePostImage = async (req, res) => {
   }
 };
 
-exports.getAllPosts = async (req, res) => {
+exports.getAllApprovedPosts = async (req, res) => {
   try {
-    const posts = await Post.find({})
+    const posts = await Post.find({ status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
       .sort({ updatedAt: -1 })
@@ -166,7 +167,7 @@ exports.getAllUserPosts = async (req, res) => {
 
 exports.getUserPostById = async (req, res) => {
   try {
-    const post = await Post.findById(req.params._id);
+    const post = await Post.findById(req.params._id).populate("category", "name");
     res.json({ post, message: "Successfully get post detail" });
   } catch (err) {
     console.log(err);
@@ -175,12 +176,20 @@ exports.getUserPostById = async (req, res) => {
 };
 
 exports.editPostById = async (req, res) => {
-  const { title, description, content, image } = req.body;
+  const { title, description, content, image, category } = req.body;
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: category });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again.", err });
+  }
+
   try {
     const updatedPost = await Post.findByIdAndUpdate(
       req.params._id,
       {
-        $set: { title, description, content, image }
+        $set: { title, description, content, image, category: categoryId }
       },
       { new: true }
     );
@@ -216,14 +225,202 @@ exports.deletePostById = async (req, res) => {
   }
 };
 
-exports.getPostsByCategory = async (req, res) => {
+exports.getApprovedPostsByCategory = async (req, res) => {
   const category = req.params._id;
   try {
-    const posts = await Post.find({ category })
+    const posts = await Post.find({ category, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 });
+      .sort({ updatedAt: -1 })
+      .limit(3);
     res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getAllApprovedArtPosts = async (req, res) => {
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: "Art" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+  try {
+    const posts = await Post.find({ category: categoryId, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 })
+      .limit(3);
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getAllApprovedBookPosts = async (req, res) => {
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: "Book" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+  try {
+    const posts = await Post.find({ category: categoryId, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 })
+      .limit(3);
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getAllApprovedFoodPosts = async (req, res) => {
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: "Food" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+  try {
+    const posts = await Post.find({ category: categoryId, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 })
+      .limit(3);
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getAllApprovedGamePosts = async (req, res) => {
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: "Game" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+  try {
+    const posts = await Post.find({ category: categoryId, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 })
+      .limit(3);
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getAllApprovedHealthPosts = async (req, res) => {
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: "Health And Fitness" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+  try {
+    const posts = await Post.find({ category: categoryId, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 })
+      .limit(3);
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getAllApprovedMusicPosts = async (req, res) => {
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: "Music" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+  try {
+    const posts = await Post.find({ category: categoryId, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 })
+      .limit(3);
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getAllApprovedPhotographyPosts = async (req, res) => {
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: "Photography" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+  try {
+    const posts = await Post.find({ category: categoryId, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 })
+      .limit(3);
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.getAllApprovedTechnologyPosts = async (req, res) => {
+  let categoryId = null;
+  try {
+    categoryId = await Category.findOne({ name: "Technology" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+  try {
+    const posts = await Post.find({ category: categoryId, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name")
+      .sort({ updatedAt: -1 })
+      .limit(3);
+    res.json({ posts, message: "Successfully get posts by category" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error. Try again." });
+  }
+};
+
+exports.searchPosts = async (req, res) => {
+  const { query } = req.body;
+  if (!query) return res.sendStatus(400);
+  const regex = new RegExp(query, "i");
+  try {
+    const users = (await User.find({ username: { $regex: regex } })).map(user => user._id);
+    const searchByUsername = await Post.find({ postedBy: { $in: users }, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name");
+    const searchByTitle = await Post.find({ title: { $regex: regex }, status: "approved" })
+      .populate("postedBy", "username avatar")
+      .populate("category", "name");
+    res.json({ searchByUsername, searchByTitle, message: "Successfully get posts!" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error. Try again." });

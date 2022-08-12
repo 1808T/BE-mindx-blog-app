@@ -3,22 +3,22 @@ const { requireLogin, checkAdmin } = require("../middlewares/auth");
 const {
   getAllUsers,
   deleteUser,
-  getAllDrafts,
-  getDraftDetail,
-  approveDraft,
-  deleteDraft
+  getAllPosts,
+  getPostDetail,
+  approvePost,
+  deletePost
 } = require("../controllers/admin");
 
 const adminRouter = express.Router();
 
 // USER
 adminRouter.get("/all-users", requireLogin, checkAdmin, getAllUsers);
-adminRouter.delete("/:user_id", requireLogin, checkAdmin, deleteUser);
+adminRouter.delete("/user/:user_id", requireLogin, checkAdmin, deleteUser);
 
 // POST
-adminRouter.get("/all-drafts", requireLogin, checkAdmin, getAllDrafts);
-adminRouter.get("/:post_id", requireLogin, checkAdmin, getDraftDetail);
-adminRouter.put("/:post_id", requireLogin, checkAdmin, approveDraft);
-adminRouter.delete("/:post_id", requireLogin, checkAdmin, deleteDraft);
+adminRouter.get("/all-posts", requireLogin, checkAdmin, getAllPosts);
+adminRouter.get("/post/:post_id", requireLogin, checkAdmin, getPostDetail);
+adminRouter.put("/post/:post_id", requireLogin, checkAdmin, approvePost);
+adminRouter.delete("/post/:post_id", requireLogin, checkAdmin, deletePost);
 
 module.exports = adminRouter;

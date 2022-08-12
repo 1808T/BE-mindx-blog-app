@@ -15,14 +15,16 @@ exports.requireLogin = expressJwt(
 );
 
 exports.checkAdmin = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (authHeader) {
-    const currentUser = await User.findById(req.auth._id, "role");
-    req["role"] = currentUser.role;
-    next();
-  } else {
-    res.sendStatus(401);
+  try {
+    const user = await User.findById(req.auth._id);
+    if (user["role"] !== "admin") {
+      res.sendStatus(401);
+    } else {
+      next();
+    }
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
   }
 };
 

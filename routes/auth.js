@@ -10,7 +10,8 @@ const {
   changePassword,
   getQuestion,
   resetPassword,
-  getUserById
+  getUserById,
+  getUserByUsername
 } = require("../controllers/auth");
 const formidable = require("express-formidable");
 const { requireLogin } = require("../middlewares/auth");
@@ -40,6 +41,6 @@ authRouter.put("/current-user/change-password", requireLogin, changePassword);
 authRouter.post("/forgot-password", getQuestion);
 authRouter.put("/forgot-password", resetPassword);
 
-authRouter.get("/user/:_id", getUserById);
+authRouter.get("/user/:user_id", getUserById);
 
 module.exports = authRouter;
