@@ -131,8 +131,7 @@ exports.getAllApprovedPosts = async (req, res) => {
     const posts = await Post.find({ status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(12);
+      .sort({ updatedAt: -1 });
     res.status(200).json({ posts, message: "Successfully get all posts" });
   } catch (err) {
     console.log(err);
@@ -232,7 +231,7 @@ exports.getApprovedPostsByCategory = async (req, res) => {
       .populate("postedBy", "username avatar")
       .populate("category", "name")
       .sort({ updatedAt: -1 })
-      .limit(3);
+      .limit(4);
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
@@ -252,8 +251,7 @@ exports.getAllApprovedArtPosts = async (req, res) => {
     const posts = await Post.find({ category: categoryId, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(3);
+      .sort({ updatedAt: -1 });
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
@@ -273,8 +271,7 @@ exports.getAllApprovedBookPosts = async (req, res) => {
     const posts = await Post.find({ category: categoryId, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(3);
+      .sort({ updatedAt: -1 });
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
@@ -294,8 +291,7 @@ exports.getAllApprovedFoodPosts = async (req, res) => {
     const posts = await Post.find({ category: categoryId, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(3);
+      .sort({ updatedAt: -1 });
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
@@ -315,8 +311,7 @@ exports.getAllApprovedGamePosts = async (req, res) => {
     const posts = await Post.find({ category: categoryId, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(3);
+      .sort({ updatedAt: -1 });
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
@@ -336,8 +331,7 @@ exports.getAllApprovedHealthPosts = async (req, res) => {
     const posts = await Post.find({ category: categoryId, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(3);
+      .sort({ updatedAt: -1 });
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
@@ -357,8 +351,7 @@ exports.getAllApprovedMusicPosts = async (req, res) => {
     const posts = await Post.find({ category: categoryId, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(3);
+      .sort({ updatedAt: -1 });
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
@@ -378,8 +371,7 @@ exports.getAllApprovedPhotographyPosts = async (req, res) => {
     const posts = await Post.find({ category: categoryId, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(3);
+      .sort({ updatedAt: -1 });
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
@@ -399,8 +391,7 @@ exports.getAllApprovedTechnologyPosts = async (req, res) => {
     const posts = await Post.find({ category: categoryId, status: "approved" })
       .populate("postedBy", "username avatar")
       .populate("category", "name")
-      .sort({ updatedAt: -1 })
-      .limit(3);
+      .sort({ updatedAt: -1 });
     res.json({ posts, message: "Successfully get posts by category" });
   } catch (err) {
     console.log(err);
